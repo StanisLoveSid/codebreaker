@@ -42,23 +42,29 @@ module Codebreaker_garage
       Array.new(4).map { rand(1..6) }
     end
 
-    def guesser(guessed_code)
+    def give_result(user_guessing)
+      return "You have no attempts." unless has_attempts?
       @attempts -= 1
+      guesser(user_guessing)
+    end
+
+    def guesser(guessed_code)
       result = ""
+      return "++++" if @generated_code == guessed_code
       associative_array = @generated_code.zip(guessed_code)
       associative_array.each do |array|
-        if array[0] == array[1]
-          result << "+"
-          array[0] = array[1] = nil
-        end
+        next unless array[0] == array[1]
+        result << "+"
+        array[0] = array[1] = nil
       end
-      return result if result == "++++"
+      not_exact_match(associative_array, result)
+    end
 
+    def not_exact_match(associative_array, result)
       associative_array.reject! {|element| element == [nil, nil]}
       transposed = associative_array.transpose
-
       transposed[0].each do |digit|
-        next if !transposed[1].include?(digit)
+        next unless transposed[1].include?(digit)
         result << '-'
         transposed[1][transposed[1].find_index(digit)] = nil
       end
@@ -66,6 +72,4 @@ module Codebreaker_garage
     end
 
   end
-
-
 end

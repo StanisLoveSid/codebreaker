@@ -6,6 +6,7 @@ module Codebreaker_garage
 
     def initialize
       @game = Game.new
+      @user_tries_to_guess = ''
     end
 
     def save_data
@@ -29,16 +30,20 @@ module Codebreaker_garage
       replay
     end
 
+    def correct_input
+      user_guessing = []
+      @user_tries_to_guess.each_char {|char| user_guessing.push char.to_i }
+      result = @game.give_result(user_guessing)
+      puts result
+      want_to_save if result == "++++"
+    end
+
     def start
       puts "New game has been started"
       while @game.has_attempts?
-        case user_tries_to_guess = gets.chomp
+        case @user_tries_to_guess = gets.chomp
         when /^[1-6]{4}$/
-          guessed_code = []
-          user_tries_to_guess.each_char {|char| guessed_code.push char.to_i }
-          result = @game.guesser(guessed_code)
-          puts result
-          want_to_save if result == "++++"
+          correct_input
         when 'hint'
           puts @game.receive_hint
         when 'exit'
@@ -47,9 +52,9 @@ module Codebreaker_garage
           puts 'You can use only 4 numbers from 1 to 6.'
         end
       end
-      puts "You don't have any attempts."
       want_to_save
     end
+
   end
 
 end

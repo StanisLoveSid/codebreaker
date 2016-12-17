@@ -71,7 +71,7 @@ module Codebreaker_garage
 
       it 'if attempt is used, quantity of attempts declines' do
         subject.instance_variable_set(:@generated_code, [1,2,3,4])
-        expect { subject.guesser([4,3,2,1]) }.to change{ subject.attempts }.by(-1)
+        expect { subject.give_result([4,3,2,1]) }.to change{ subject.attempts }.by(-1)
       end
 
     end
