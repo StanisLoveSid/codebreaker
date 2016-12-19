@@ -31,8 +31,7 @@ module Codebreaker_garage
     end
 
     def correct_input
-      user_guessing = []
-      @user_tries_to_guess.each_char {|char| user_guessing.push char.to_i }
+      user_guessing = @user_tries_to_guess.split('').map(&:to_i)
       result = @game.give_result(user_guessing)
       puts result
       want_to_save if result == "++++"
