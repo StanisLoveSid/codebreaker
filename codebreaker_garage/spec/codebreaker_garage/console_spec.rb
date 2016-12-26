@@ -2,11 +2,13 @@ require 'spec_helper'
 
 module Codebreaker_garage
   RSpec.describe Console do
-
+    subject(:console) {Console.new}
+    let(:game) { console.instance_variable_get(:@game) }
     describe "#start" do
+
       before do
-        subject.instance_variable_set(:@user_tries_to_guess, '1234')
-        allow(subject.instance_variable_get(:@game)).to receive(:has_attempts?).and_return(true)
+        allow(subject).to receive(:want_to_save)
+        allow(game).to receive(:has_attempts?).and_return(false)
       end
 
       it "says that game has been started" do
@@ -14,15 +16,15 @@ module Codebreaker_garage
         expect { subject.start }.to output(/New game has been started/).to_stdout
       end
 
-      it "print mark answer" do
-        allow(subject).to receive(:gets).and_return('1234')
-        allow(subject.instance_variable_get(:@game)).to receive(:correct_input).and_return('----')
-        expect { subject.start }.to output(/----/).to_stdout
+      it 'prints hint' do
+        allow(subject).to receive(:gets).and_return('hint')
+        allow(game).to receive(:receive_hint).and_return("hint")
+        expect { subject.start }.to output(/hint/).to_stdout
       end
 
-      it 'should print warning massege if wrong input' do
-        allow(subject).to receive(:gets).and_return('11111')
-        expect { subject.start }.to output(/You can use only 4 numbers from 1 to 6./).to_stdout
+      it "prints warning" do
+        allow(subject).to receive(:gets).and_return('1234e')
+        expect { subject.send(:start)}.to output(/You can use only 4 numbers from 1 to 6./).to_stdout
       end
 
     end
@@ -60,11 +62,12 @@ module Codebreaker_garage
 
     context '#want_to_save' do
       before do
-        allow(subject).to receive(:save_data)
         allow(subject).to receive(:gets).and_return('y')
+        allow(subject).to receive(:save_data)
+        allow(subject).to receive(:replay)
       end
 
-      it 'ask about play again' do
+      it 'ask about saving the game result' do
         expect { subject.send(:want_to_save) }.to output(/Do you want to save the game result?/).to_stdout
       end
 
@@ -77,14 +80,12 @@ module Codebreaker_garage
 
     context '#save_data' do
 
-      after { File.delete('./statistics.yaml') }
-
-      it 'statistics.yaml should exist' do
+      it 'statistics.yml should exist' do
         allow(subject).to receive(:puts)
-        subject.send(:save_data)
+        allow(game).to receive(:statistics)
         allow(subject).to receive(:gets).and_return('name')
-        expect(File.exist?('./statistics.yaml')).to eq true
-        expect(subject).to receive(:replay)
+        allow(subject).to receive(:save_data)
+        expect(File.exist?('statistics.yml')).to eq true
       end
     end
 

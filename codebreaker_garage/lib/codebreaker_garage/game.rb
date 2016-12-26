@@ -31,10 +31,7 @@ module Codebreaker_garage
     def receive_hint
       return "You have no hints." if @hints == 0
       @hints -= 1
-      machine_codebreaker = (1..6).to_a
-      hint = machine_codebreaker.repeated_permutation(4).to_a
-      hint.select! {|code| code == @generated_code }
-      hint.flatten![rand(4)]
+      @generated_code[rand(4)]
     end
 
 
